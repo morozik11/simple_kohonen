@@ -19,7 +19,7 @@ instance (Ord a, Num a) => Normalize Vector a where
     let max = maximum xs
     in Just max
   ---------------------------------
-  wrapGetMin (Vector []) = Nothing
+  wrapGetMin (Vector []) = Just 0
   wrapGetMin (Vector xs) =
     let min = minimum xs
     in Just min
@@ -28,19 +28,20 @@ instance (Ord a, Num a) => Normalize Vector a where
 instance (Normalize v a,Ord a, Num a) => Normalize (Vectors v) a where
   ---------------------------------
   wrapGetMax (Vectors [])  = Nothing
-  wrapGetMax (Vectors vs) = getMaxMaybe (map wrapGetMax vs)
+  wrapGetMax (Vectors vs) =
+    let maxList =  map wrapGetMax vs
+    in getMaxMinMaybe maxList maximum
   ---------------------------------
   wrapGetMin (Vectors []) = Nothing
-  wrapGetMin (Vectors vs) = getMinMaybe (map wrapGetMin vs)
+  wrapGetMin (Vectors vs) =
+    let minList = map wrapGetMin vs
+    in getMaxMinMaybe minList minimum
   
 
-getMaxMaybe :: (Ord a, Num a) => [Maybe a] -> Maybe a
-getMaxMaybe [Nothing] = Nothing
-getMaxMaybe (xs) = maximum xs
+getMaxMinMaybe :: (Ord a, Num a) => [Maybe a] -> ([Maybe a] -> Maybe a) -> Maybe a
+getMaxMinMaybe [Nothing] _  = Nothing
+getMaxMinMaybe (xs) f  = f xs
 
-getMinMaybe :: (Ord a, Num a) => [Maybe a] -> Maybe a
-getMinMaybe [Nothing] = Nothing
-getMinMaybe (xs) = minimum xs
 
 
 {--
