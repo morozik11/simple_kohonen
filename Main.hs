@@ -1,84 +1,59 @@
+{-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE FunctionalDependencies #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
+
 module Main where
 
+newtype Vector a = Vector [a] deriving (Show,Read,Ord,Eq)
+
+newtype Vectors v a = Vectors [v a] deriving (Show,Read,Ord,Eq)
+
+class Normalize v a | v a -> a where
+  wrapGetMax ::  v a -> Maybe a
+  wrapGetMin :: v a -> Maybe a
+
+instance (Ord a, Num a) => Normalize Vector a where
+  --------------------------------
+  wrapGetMax (Vector []) = Nothing
+  wrapGetMax (Vector xs) =
+    let max = maximum xs
+    in Just max
+  ---------------------------------
+  wrapGetMin (Vector []) = Nothing
+  wrapGetMin (Vector xs) =
+    let min = minimum xs
+    in Just min
 
 
+instance (Normalize v a,Ord a, Num a) => Normalize (Vectors v) a where
+  ---------------------------------
+  wrapGetMax (Vectors [])  = Nothing
+  wrapGetMax (Vectors vs) = getMaxMaybe (map wrapGetMax vs)
+  ---------------------------------
+  wrapGetMin (Vectors []) = Nothing
+  wrapGetMin (Vectors vs) = getMinMaybe (map wrapGetMin vs)
+  
 
-getMax :: Ord t => [t]  -> t
-getMax vector = maximum vector
+getMaxMaybe :: (Ord a, Num a) => [Maybe a] -> Maybe a
+getMaxMaybe [Nothing] = Nothing
+getMaxMaybe (xs) = maximum xs
 
-
-getMin :: Ord t => [t]  -> t
-getMin vector = minimum vector 
-
-
-wrapGetMin :: Ord t => [[t]] -> t -> t
-wrapGetMin [] i = i
-wrapGetMin (x:xs) i = 
-    let c = getMin x
-        in
-            if c < i
-                then wrapGetMin xs c
-                else wrapGetMin xs i
-
-
-wrapGetMax :: Ord t => [[t]] -> t -> t
-wrapGetMax [] i  = i
-wrapGetMax (x:xs) i  = 
-    let c  = getMax x
-        in
-            if c > i 
-            then wrapGetMax xs c
-            else wrapGetMax xs i
+getMinMaybe :: (Ord a, Num a) => [Maybe a] -> Maybe a
+getMinMaybe [Nothing] = Nothing
+getMinMaybe (xs) = minimum xs
 
 
-getA :: (Ord t, Fractional t) => t -> t -> t
-getA 0 0 = 0
-getA max min = 
-    let delta = max - min
-    in
-        if delta > 0
-            then 1/ delta
-            else 0
+{--
 
+a = 1 / max - min
+b = -min / max - min
 
-wrapGetA :: (Ord t, Fractional t) => [[t]] -> t
-wrapGetA []  = 0
-wrapGetA vectors@(x:xs) =
-    getA max min
-    where 
-        max = wrapGetMax vectors 0
-        min = wrapGetMin vectors 0
+v = a * x + b
+w ~ R[0.1 - 0.3]
 
+y = 0.3 , Dy = 0.05
 
-getB :: (Ord t, Fractional t) => t -> t -> t
-getB 0 0 = 0
-getB max min = 
-    let delta = max - min
-    in
-        if delta > 0
-            then -1* min/delta
-            else 0
-
-
-wrapGetB :: (Ord t, Fractional t) => [[t]] -> t
-wrapGetB [] = 0
-wrapGetB vectors@(x:xs) =
-    getB max min
-    where 
-        max = wrapGetMax vectors 0
-        min = wrapGetMin vectors 0
- 
-
---wrapNormalizData :: (Ord t, Fractional t) => [t] -> t -> t ->  [t] -> [t] 
---wrapNormalizData [] _ _ vectors@(x:xs) = [] : vectors
---wrapNormalizData (x:xs) a b vectors@(z:zs)  =  
---    let n =  a * x + b
---    in n : vectors
---    wrapNormalizData xs a b vectors
-
-normalizData :: (Ord t, Fractional t)  => [t] ->t -> t  -> [t]
-normalizData vector a b =  map (\x -> a*x+b ) vector
-    
+--}
 
 main :: IO()
 main = do
