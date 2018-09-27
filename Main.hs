@@ -42,7 +42,29 @@ getMaxMinMaybe :: (Ord a, Num a) => [Maybe a] -> ([Maybe a] -> Maybe a) -> Maybe
 getMaxMinMaybe [Nothing] _  = Nothing
 getMaxMinMaybe (xs) f  = f xs
 
+class GetAGetB v a | v a -> a where
+  getA :: v a -> Maybe a
+  --getb :: v a -> Maybe a
 
+
+
+instance (GetAGetB v a, Normalize v a,  Ord a, Num a, Fractional a) => GetAGetB (Vectors v) a where
+  --------------------------------
+  getA vs =
+    wrapGeta max min
+    where
+      max = wrapGetMax vs
+      min = wrapGetMin vs
+
+
+
+
+wrapGeta :: (Ord a, Num a, Fractional a) => Maybe a -> Maybe a -> Maybe a
+wrapGeta (Nothing) (Just min)  = Just 0
+wrapGeta (Just max) (Nothing) = Just 0
+wrapGeta (Just max) (Just min) =
+  let expression =  max - min 
+  in Just (1/expression)
 
 {--
 
