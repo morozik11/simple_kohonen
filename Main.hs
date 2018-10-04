@@ -8,12 +8,12 @@ newtype Vector a = Vector [a] deriving (Show,Read,Ord,Eq)
 
 newtype Vectors v a = Vectors [Vector a] deriving (Show,Read,Ord,Eq)
 
-class Normalize v a where
+class WrapGetMaxGetMin v a where
   wrapGetMax ::  v a -> a
   wrapGetMin :: v a -> a
 
 
-instance (Ord a, Num a) => Normalize Vector a where
+instance (Ord a, Num a) => WrapGetMaxGetMin Vector a where
   wrapGetMax (Vector []) = 0
   wrapGetMax (Vector v) = maximum v
   -------------------------------
@@ -21,7 +21,7 @@ instance (Ord a, Num a) => Normalize Vector a where
   wrapGetMin (Vector v) = minimum v
 
 
-instance (Ord a, Num a) => Normalize (Vectors v) a  where
+instance (Ord a, Num a) => WrapGetMaxGetMin (Vectors v) a  where
   wrapGetMax (Vectors []) = 0
   wrapGetMax (Vectors v) =
     let filteredList = filterEmpty (Vectors v)
@@ -60,6 +60,10 @@ instance (Ord a, Num a, Fractional a) => GetA_B (Vectors v) a where
    -------------------------------
   getA_B (Vectors []) = (0,0)
   getA_B (Vectors vs) = (getA (Vectors vs), getB (Vectors vs))
+
+
+class Normalize v a where
+  normalize ::  v a -> v a 
 
 
 
