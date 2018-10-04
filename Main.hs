@@ -38,10 +38,36 @@ instance (Ord a, Num a) => Normalize (Vectors v) a  where
       in minimum listVector
 
 
+class GetA_B v a where
+  getA :: v a -> a
+  getB :: v a -> a
+  getA_B :: v a -> (a,a)
+
+instance (Ord a, Num a, Fractional a) => GetA_B (Vectors v) a where
+  getA (Vectors []) = 0
+  getA (Vectors vs) =
+    let max = wrapGetMax (Vectors vs)
+    in
+      1 / (max - min)
+      where min = wrapGetMin (Vectors vs)
+  -------------------------------
+  getB (Vectors []) = 0
+  getB (Vectors vs) =
+    let min = wrapGetMin (Vectors vs)
+    in
+      -min / (max - min)
+      where max = wrapGetMax (Vectors vs)
+   -------------------------------
+  getA_B (Vectors []) = (0,0)
+  getA_B (Vectors vs) = (getA (Vectors vs), getB (Vectors vs))
+
+
+
 filterEmpty :: (Ord a, Num a) => (Vectors v) a  -> [Vector a]
 filterEmpty (Vectors []) = []
 filterEmpty (Vectors vs) =
   filter (\x -> x /= Vector []) vs
+
 
 
  
@@ -57,40 +83,3 @@ y = 0.3 , Dy = 0.05
 main :: IO()
 main = do
     return ()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
