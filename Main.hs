@@ -45,7 +45,7 @@ class GetA_B v a where
 
 instance (Ord a, Num a, Fractional a) => GetA_B (Vectors v) a where
   getA (Vectors []) = 0
-  getA (Vectors vs) =
+  getA (Vectors vs) = 
     let max = wrapGetMax (Vectors vs)
     in
       1 / (max - min)
@@ -66,6 +66,27 @@ class Normalize v a where
   normalize ::  v a -> v a 
 
 
+instance (Ord a, Num a, Fractional a) => Normalize (Vectors v) a where
+  normalize (Vectors []) = Vectors []
+  normalize (Vectors vs) =
+    let a = getA (Vectors vs)
+        b = getB (Vectors vs)
+    in
+      setNormalElemVectors (Vectors vs) a b
+          
+
+setNormalElemVectors :: (Ord a, Num a, Fractional a) =>  (Vectors v) a -> a -> a -> (Vectors v) a
+setNormalElemVectors (Vectors []) _ _  = Vectors []
+setNormalElemVectors (Vectors vs) a b  =
+  let listVectors = map (\x -> setNormalElemVector x a b) vs
+  in (Vectors listVectors)
+
+
+setNormalElemVector :: (Ord a, Num a, Fractional a) => Vector a -> a -> a -> Vector a
+setNormalElemVector (Vector []) _ _  =  Vector []
+setNormalElemVector (Vector v) a b  =
+  let listVector =  map (\x -> x * a + b)  v
+  in (Vector listVector)
 
 filterEmpty :: (Ord a, Num a) => (Vectors v) a  -> [Vector a]
 filterEmpty (Vectors []) = []
