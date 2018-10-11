@@ -14,7 +14,8 @@ license-file:        LICENSE
 build-type:          Simple
 extra-source-files:  ChangeLog.md
 cabal-version:       >=1.10 
-
+--exposed-modules:     Training
+--                     Normalize
 
 executable kon
   main-is:             Main.hs
