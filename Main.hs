@@ -2,10 +2,8 @@
 
 module Main where
 
-import Normalize
+
 import Training
-
-
 
 
 
